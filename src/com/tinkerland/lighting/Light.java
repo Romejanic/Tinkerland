@@ -35,7 +35,12 @@ public class Light {
 	
 	public enum LightType {
 		
-		OMNI, SPOT, DIRECTIONAL
+		OMNI(100), SPOT(100), DIRECTIONAL(10);
+		
+		public final int deferredLimit;
+		LightType(int deferredLimit) {
+			this.deferredLimit = deferredLimit;
+		}
 		
 	}
 	

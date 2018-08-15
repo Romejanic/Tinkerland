@@ -1,5 +1,9 @@
 #version 330 core
 
+#ifndef __DEFERRED_MAX_LIGHTS_OMNI__
+	#define __DEFERRED_MAX_LIGHTS_OMNI__ 100
+#endif
+
 struct Light {
 	vec3 position;
 	float range;
@@ -17,7 +21,8 @@ uniform vec3 cameraPos;
 uniform mat4 invProjMat;
 uniform mat4 invViewMat;
 
-uniform Light lightSource;
+uniform Light lightSources[__DEFERRED_MAX_LIGHTS_OMNI__];
+uniform int lightCount;
 
 vec3 worldSpaceFromDepth(vec2 samplePos) {
 	float sample = texture(depth, samplePos).r * 2. - 1.;
@@ -40,14 +45,23 @@ void main() {
 	vec3 eye    = normalize(cameraPos - pos);
 	vec3 refl   = normalize(-reflect(eye, normal));
 	
-	vec3 light  = lightSource.position - pos;
-	float dist  = length(light);
-	light      *= 1. / dist;
+	diffuse_out = vec3(0.);
+	specular_out = vec3(0.);
 	
-	float atten = max(1. - ((dist*dist) / (lightSource.range*lightSource.range)), 0.);
-	float d = max(dot(light, normal),0.) * atten;
-	float s = pow(max(dot(light, refl), 0.), 45.) * atten;
+	for(int i = 0; i < lightCount; i++) {
+		Light lightSource = lightSources[i];
+		vec3 light  = lightSource.position - pos;
+		float dist  = length(light);
+		if(dist > lightSource.range) {
+			continue;
+		}
+		light      *= 1. / dist;
 	
-	diffuse_out = lightSource.color.xyz * d * lightSource.intensity * atten;
-	specular_out = lightSource.color.xyz * s * lightSource.intensity * atten;
+		float atten = max(1. - ((dist*dist) / (lightSource.range*lightSource.range)), 0.);
+		float d = max(dot(light, normal),0.) * atten;
+		float s = pow(max(dot(light, refl), 0.), 45.) * atten;
+	
+		diffuse_out += lightSource.color.xyz * d * lightSource.intensity * atten;
+		specular_out += lightSource.color.xyz * s * lightSource.intensity * atten;
+	}
 }

@@ -115,6 +115,10 @@ public class Shader {
 		int s = glCreateShader(type);
 		try {
 			ArrayList<String> source = Resources.readLines("shaders/" + src + ".glsl");
+			for(String key : globalDefines.keySet()) {
+				String val = globalDefines.get(key);
+				source.add(1, "#define __" + key + "__" + (val != null ? " " + val : ""));
+			}
 			glShaderSource(s, ArrayUtils.joinList(source, "\n"));
 			glCompileShader(s);
 			if(glGetShaderi(s, GL_COMPILE_STATUS) == GL_FALSE) {

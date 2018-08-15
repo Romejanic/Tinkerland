@@ -1,5 +1,9 @@
 #version 330 core
 
+#ifndef __DEFERRED_MAX_LIGHTS_DIRECTIONAL__
+	#define __DEFERRED_MAX_LIGHTS_DIRECTIONAL__ 10
+#endif
+
 struct Light {
 	vec3 direction;
 	vec4 color;
@@ -16,7 +20,8 @@ uniform vec3 cameraPos;
 uniform mat4 invProjMat;
 uniform mat4 invViewMat;
 
-uniform Light lightSource;
+uniform Light lightSources[__DEFERRED_MAX_LIGHTS_DIRECTIONAL__];
+uniform int lightCount;
 
 vec3 worldSpaceFromDepth(vec2 samplePos) {
 	float sample = texture(depth, samplePos).r * 2. - 1.;
@@ -39,9 +44,15 @@ void main() {
 	vec3 eye    = normalize(cameraPos - pos);
 	vec3 refl   = normalize(-reflect(eye, normal));
 	
-	float d = max(dot(lightSource.direction, normal),0.);
-	float s = pow(max(dot(lightSource.direction, refl), 0.), 45.);
+	diffuse_out = vec3(0.);
+	specular_out = vec3(0.);
 	
-	diffuse_out = lightSource.color.xyz * d * lightSource.intensity;
-	specular_out = lightSource.color.xyz * s * lightSource.intensity;
+	for(int i = 0; i < lightCount; i++) {
+		Light lightSource = lightSources[i];
+		float d = max(dot(lightSource.direction, normal),0.);
+		float s = pow(max(dot(lightSource.direction, refl), 0.), 45.);
+	
+		diffuse_out += lightSource.color.xyz * d * lightSource.intensity;
+		specular_out += lightSource.color.xyz * s * lightSource.intensity;
+	}
 }

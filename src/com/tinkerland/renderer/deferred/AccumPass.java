@@ -48,6 +48,7 @@ public class AccumPass {
 				continue;
 			}
 			this.shaders[type.ordinal()] = Shader.get("deferred/accum_" + type.name().toLowerCase());
+			Shader.define("DEFERRED_MAX_LIGHTS_" + type.name(), String.valueOf(type.deferredLimit));
 		}
 	}
 	
@@ -87,7 +88,8 @@ public class AccumPass {
 			glBlendFunc(GL_ONE, GL_ONE);
 			this.quad.bind();
 			for(LightType type : LightType.values()) {
-				if(sortedLights[type.ordinal()] == null || sortedLights[type.ordinal()].isEmpty()) {
+				ArrayList<Light> typeLights = sortedLights[type.ordinal()];
+				if(typeLights == null || typeLights.isEmpty()) {
 					continue;
 				}
 				Shader shader = this.shaders[type.ordinal()];
@@ -97,30 +99,32 @@ public class AccumPass {
 				shader.uniform("cameraPos").set(camera.getPosition());
 				shader.uniform("invProjMat").set(invProjMat);
 				shader.uniform("invViewMat").set(invViewMat);
-				for(Light light : sortedLights[type.ordinal()]) {
-					shader.uniform("lightSource.color").set(light.color);
-					shader.uniform("lightSource.intensity").set(light.intensity);
+				shader.uniform("lightCount").set(Math.min(typeLights.size(), type.deferredLimit));
+				for(int i = 0; i < typeLights.size(); i++) {
+					Light light = typeLights.get(i);
+					shader.uniform("lightSources[" + i + "].color").set(light.color);
+					shader.uniform("lightSources[" + i + "].intensity").set(light.intensity);
 					switch(type) {
 					case DIRECTIONAL:
 						Vector3f lightDir = Mathf.rotationToVector(light.rotation, Temp.VEC3).negate();
-						shader.uniform("lightSource.direction").set(lightDir);
+						shader.uniform("lightSources[" + i + "].direction").set(lightDir);
 						break;
 					case OMNI:
-						shader.uniform("lightSource.range").set(light.range);
-						shader.uniform("lightSource.position").set(light.position);
+						shader.uniform("lightSources[" + i + "].range").set(light.range);
+						shader.uniform("lightSources[" + i + "].position").set(light.position);
 						break;
 					case SPOT:
 						lightDir = Mathf.rotationToVector(light.rotation, Temp.VEC3).negate();
-						shader.uniform("lightSource.direction").set(lightDir);
-						shader.uniform("lightSource.range").set(light.range);
-						shader.uniform("lightSource.position").set(light.position);
-						shader.uniform("lightSource.spotAngle").set(light.spotAngle);
+						shader.uniform("lightSources[" + i + "].direction").set(Mathf.rotationToVector(light.rotation, Temp.VEC3).negate());
+						shader.uniform("lightSources[" + i + "].range").set(light.range);
+						shader.uniform("lightSources[" + i + "].position").set(light.position);
+						shader.uniform("lightSources[" + i + "].spotAngle").set(light.spotAngle);
 						break;
 					default:
 						continue;
 					}
-					this.quad.draw();
 				}
+				this.quad.draw();
 				shader.unbind();
 			}
 			this.quad.unbind();

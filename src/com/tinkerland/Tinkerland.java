@@ -33,7 +33,7 @@ public class Tinkerland {
 		
 		Light sun = this.scene.addLight(LightType.DIRECTIONAL);
 		sun.rotation.set(45f, 45f, 0f);
-		for(int i = 0; i < 10; i++) {
+		for(int i = 0; i < 50; i++) {
 			this.scene.addLight(DeferredTest.createRandomPointLight());
 		}
 //		Light p1 = this.scene.addLight(LightType.OMNI);
