@@ -1,0 +1,9 @@
+bin/
+.eclipse/
+.project
+.settings/
+.classpath
+.DS_Store
+*/.DS_Store
+
+*.class
