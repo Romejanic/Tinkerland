@@ -14,7 +14,8 @@ public class Light {
 	public Color color     = Color.WHITE;
 	
 	public float range     = 10f;
-	public float spotAngle = 60f;
+	public float spotAngle = 45f;
+	public float spotSoftness = 0.05f;
 	
 	public Light() {
 		this(LightType.OMNI);

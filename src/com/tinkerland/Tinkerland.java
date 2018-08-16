@@ -33,18 +33,12 @@ public class Tinkerland {
 		
 		Light sun = this.scene.addLight(LightType.DIRECTIONAL);
 		sun.rotation.set(45f, 45f, 0f);
-		for(int i = 0; i < 50; i++) {
+		Light spot = this.scene.addLight(LightType.SPOT);
+		spot.position.set(-3f, 3f, -3f);
+		spot.rotation.set(-45f, 30f, 0f);
+		for(int i = 0; i < 10; i++) {
 			this.scene.addLight(DeferredTest.createRandomPointLight());
 		}
-//		Light p1 = this.scene.addLight(LightType.OMNI);
-//		p1.position.set(-5f, 1f, -5f);
-//		p1.color = Color.RED;
-//		Light p2 = this.scene.addLight(LightType.OMNI);
-//		p2.position.set(-5f, 1f, 0f);
-//		p2.color = Color.GREEN;
-//		Light p3 = this.scene.addLight(LightType.OMNI);
-//		p3.position.set(-5f, 1f, 5f);
-//		p3.color = Color.BLUE;
 		
 		Input.setCursorLocked(true);
 	}

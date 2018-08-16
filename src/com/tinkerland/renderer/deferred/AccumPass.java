@@ -44,9 +44,6 @@ public class AccumPass {
 		this.shaders = new Shader[LightType.values().length];
 
 		for(LightType type : LightType.values()) {
-			if(type == LightType.SPOT) {
-				continue;
-			}
 			this.shaders[type.ordinal()] = Shader.get("deferred/accum_" + type.name().toLowerCase());
 			Shader.define("DEFERRED_MAX_LIGHTS_" + type.name(), String.valueOf(type.deferredLimit));
 		}
@@ -118,7 +115,8 @@ public class AccumPass {
 						shader.uniform("lightSources[" + i + "].direction").set(Mathf.rotationToVector(light.rotation, Temp.VEC3).negate());
 						shader.uniform("lightSources[" + i + "].range").set(light.range);
 						shader.uniform("lightSources[" + i + "].position").set(light.position);
-						shader.uniform("lightSources[" + i + "].spotAngle").set(light.spotAngle);
+						shader.uniform("lightSources[" + i + "].cosSpotAngle").set(Mathf.cos(Mathf.rad(light.spotAngle)));
+						shader.uniform("lightSources[" + i + "].cosSpotAngleCutoff").set(Mathf.cos(Mathf.rad(light.spotAngle - light.spotAngle * light.spotSoftness)));
 						break;
 					default:
 						continue;
