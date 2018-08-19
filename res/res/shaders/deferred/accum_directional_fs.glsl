@@ -1,4 +1,5 @@
 #version 330 core
+#include <lighting/pbr.glsl>
 
 #ifndef __DEFERRED_MAX_LIGHTS_DIRECTIONAL__
 	#define __DEFERRED_MAX_LIGHTS_DIRECTIONAL__ 10
@@ -49,10 +50,18 @@ void main() {
 	
 	for(int i = 0; i < lightCount; i++) {
 		Light lightSource = lightSources[i];
-		float d = max(dot(lightSource.direction, normal),0.);
-		float s = pow(max(dot(lightSource.direction, refl), 0.), 45.);
+		vec3 halfVec = normalize(lightSource.direction + eye);
+        
+        float ldoth = max(dot(lightSource.direction,halfVec) ,0.);
+        float ndoth = max(dot(normal,halfVec) ,0.);
+        float ndotv = max(dot(normal,eye),0.);
+        float ndotl = max(dot(normal,lightSource.direction) ,0.);
+        
+        float metallic  = 0.;
+        float roughness = .6;
+        vec3 spec = BRDF_CookTorrance(ldoth, ndoth, ndotv, ndotl, roughness, metallic);
 	
-		diffuse_out += lightSource.color.xyz * d * lightSource.intensity;
-		specular_out += lightSource.color.xyz * s * lightSource.intensity;
+		diffuse_out += lightSource.color.xyz * ndotl * lightSource.intensity;
+		specular_out += lightSource.color.xyz * spec * lightSource.intensity;
 	}
 }

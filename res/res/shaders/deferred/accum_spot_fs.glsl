@@ -1,4 +1,5 @@
 #version 330 core
+#include <lighting/pbr.glsl>
 
 #ifndef __DEFERRED_MAX_LIGHTS_SPOT__
 	#define __DEFERRED_MAX_LIGHTS_SPOT__ 100
@@ -67,11 +68,19 @@ void main() {
 		float epsilon = lightSource.cosSpotAngle - lightSource.cosSpotAngleCutoff;
 		float fade    = 1. - clamp((theta - lightSource.cosSpotAngleCutoff) / epsilon, 0., 1.);
 	
-		float atten = max(1. - ((dist*dist) / (lightSource.range*lightSource.range)), 0.);
-		float d = max(dot(light, normal),0.) * atten;
-		float s = pow(max(dot(light, refl), 0.), 45.) * atten;
+		float atten  = max(1. - ((dist*dist) / (lightSource.range*lightSource.range)), 0.);
+		vec3 halfVec = normalize(light + eye);
+        
+        float ldoth = max(dot(light,halfVec) ,0.);
+        float ndoth = max(dot(normal,halfVec) ,0.);
+        float ndotv = max(dot(normal,eye),0.);
+        float ndotl = max(dot(normal,light) ,0.);
+        
+        float metallic  = 0.;
+        float roughness = .6;
+        vec3 spec = BRDF_CookTorrance(ldoth, ndoth, ndotv, ndotl, roughness, metallic);
 	
-		diffuse_out += lightSource.color.xyz * d * lightSource.intensity * atten * fade;
-		specular_out += lightSource.color.xyz * s * lightSource.intensity * atten * fade;
+		diffuse_out += lightSource.color.xyz * ndotl * lightSource.intensity * atten * fade;
+		specular_out += lightSource.color.xyz * spec * lightSource.intensity * atten * fade;
 	}
 }

@@ -44,7 +44,6 @@ void main() {
 	vec3 pos    = worldSpaceFromDepth(v_texCoords);
 	vec3 normal = normalize(normalTex.xyz * 2. - 1.);
 	vec3 eye    = normalize(cameraPos - pos);
-	vec3 refl   = normalize(-reflect(eye, normal));
 	
 	diffuse_out = vec3(0.);
 	specular_out = vec3(0.);
@@ -56,13 +55,21 @@ void main() {
 		if(dist > lightSource.range) {
 			continue;
 		}
-		light      *= 1. / dist;
+		light *= 1. / dist;
 	
-		float atten = max(1. - ((dist*dist) / (lightSource.range*lightSource.range)), 0.);
-		float d = max(dot(light, normal),0.) * atten;
-		float s = pow(max(dot(light, refl), 0.), 45.) * atten;
+		float atten  = max(1. - ((dist*dist) / (lightSource.range*lightSource.range)), 0.);
+		vec3 halfVec = normalize(light + eye);
+        
+        float ldoth = max(dot(light,halfVec) ,0.);
+        float ndoth = max(dot(normal,halfVec) ,0.);
+        float ndotv = max(dot(normal,eye),0.);
+        float ndotl = max(dot(normal,light) ,0.);
+        
+        float metallic  = 0.;
+        float roughness = .6;
+        vec3 spec = BRDF_CookTorrance(ldoth, ndoth, ndotv, ndotl, roughness, metallic);
 	
-		diffuse_out += lightSource.color.xyz * d * lightSource.intensity * atten;
-		specular_out += lightSource.color.xyz * s * lightSource.intensity * atten;
+		diffuse_out += lightSource.color.xyz * ndotl * lightSource.intensity * atten;
+		specular_out += lightSource.color.xyz * spec * lightSource.intensity * atten;
 	}
 }
