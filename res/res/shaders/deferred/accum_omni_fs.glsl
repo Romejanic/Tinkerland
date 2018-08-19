@@ -1,4 +1,5 @@
 #version 330 core
+#include <lighting/pbr.glsl>
 
 #ifndef __DEFERRED_MAX_LIGHTS_OMNI__
 	#define __DEFERRED_MAX_LIGHTS_OMNI__ 100

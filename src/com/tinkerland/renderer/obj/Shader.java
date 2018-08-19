@@ -22,6 +22,7 @@ public class Shader {
 	private static final FloatBuffer TEMP_MAT4 = BufferUtils.createFloatBuffer(16);
 	public static final HashMap<String, Shader> shaders = new HashMap<String, Shader>();
 	private static final HashMap<String, String> globalDefines = new HashMap<String, String>();
+	private static final HashMap<String, String> includes = new HashMap<String, String>();
 	
 	private final HashMap<String, UniformVar> uniforms = new HashMap<String, UniformVar>();
 	
@@ -119,6 +120,7 @@ public class Shader {
 				String val = globalDefines.get(key);
 				source.add(1, "#define __" + key + "__" + (val != null ? " " + val : ""));
 			}
+			replaceIncludes(source);
 			glShaderSource(s, ArrayUtils.joinList(source, "\n"));
 			glCompileShader(s);
 			if(glGetShaderi(s, GL_COMPILE_STATUS) == GL_FALSE) {
@@ -130,6 +132,32 @@ public class Shader {
 			throw e;
 		}
 		return s;
+	}
+	
+	private static void replaceIncludes(ArrayList<String> source) throws Exception {
+		for(int i = 0; i < source.size(); i++) {
+			String line = source.get(i);
+			if(line.startsWith("#version")) {
+				continue;
+			} else if(line.startsWith("#include") && line.contains("<") && line.contains(">")) {
+				int start = line.indexOf("<") + 1;
+				int end   = line.indexOf(">");
+				String includeName = line.substring(start, end);
+				String includeSrc  = getInclude(includeName);
+				source.remove(i); source.add(i, includeSrc);
+			}
+		}
+	}
+	
+	private static String getInclude(String name) throws Exception {
+		if(includes.containsKey(name)) {
+			return includes.get(name);
+		}
+		ArrayList<String> source = Resources.readLines("shaders/" + name);
+		replaceIncludes(source);
+		String src = ArrayUtils.joinList(source, "\n");
+		includes.put(name, src);
+		return src;
 	}
 	
 	public static void define(String key) {
@@ -154,6 +182,7 @@ public class Shader {
 			glDeleteProgram(shader.program);
 		}
 		shaders.clear();
+		includes.clear();
 	}
 	
 	public class UniformVar {
