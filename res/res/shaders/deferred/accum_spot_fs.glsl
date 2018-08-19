@@ -21,6 +21,7 @@ in vec2 v_texCoords;
 
 uniform sampler2D normals;
 uniform sampler2D depth;
+uniform sampler2D specular;
 uniform vec3 cameraPos;
 uniform mat4 invProjMat;
 uniform mat4 invViewMat;
@@ -43,6 +44,9 @@ void main() {
 		discard;
 		return;
 	}
+	vec2 specularTex = texture(specular, v_texCoords).rg;
+	float metallic   = specularTex.x;
+    float roughness  = specularTex.y;
 
 	vec3 pos    = worldSpaceFromDepth(v_texCoords);
 	vec3 normal = normalize(normalTex.xyz * 2. - 1.);
@@ -76,8 +80,6 @@ void main() {
         float ndotv = max(dot(normal,eye),0.);
         float ndotl = max(dot(normal,light) ,0.);
         
-        float metallic  = 0.;
-        float roughness = .6;
         vec3 spec = BRDF_CookTorrance(ldoth, ndoth, ndotv, ndotl, roughness, metallic);
 	
 		diffuse_out += lightSource.color.xyz * ndotl * lightSource.intensity * atten * fade;

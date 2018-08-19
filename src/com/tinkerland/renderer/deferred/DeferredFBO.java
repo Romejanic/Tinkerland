@@ -21,6 +21,7 @@ public class DeferredFBO {
 	private int fbo;
 	private int gBuffer;
 	private int nBuffer;
+	private int sBuffer;
 	private int dBuffer;
 
 	public void bind(int w, int h) {
@@ -39,7 +40,7 @@ public class DeferredFBO {
 	public void delete() {
 		if(fbo > 0) {
 			glDeleteFramebuffers(fbo);
-			glDeleteTextures(Buffers.fromArray(gBuffer, nBuffer, dBuffer));
+			glDeleteTextures(Buffers.fromArray(gBuffer, nBuffer, sBuffer, dBuffer));
 		}
 	}
 	
@@ -49,19 +50,21 @@ public class DeferredFBO {
 		} else {
 			return;
 		}
-		IntBuffer textures = BufferUtils.createIntBuffer(3);
+		IntBuffer textures = BufferUtils.createIntBuffer(4);
 		glGenTextures(textures);
 		
 		this.fbo = glGenFramebuffers();
 		this.gBuffer = createTexture(textures.get(0), w, h, GL_RGBA, GL_RGBA);
 		this.nBuffer = createTexture(textures.get(1), w, h, GL_RGBA, GL_RGBA);
-		this.dBuffer = createTexture(textures.get(2), w, h, GL_DEPTH_COMPONENT, GL_DEPTH_COMPONENT);
+		this.sBuffer = createTexture(textures.get(2), w, h, GL_RG, GL_RG);
+		this.dBuffer = createTexture(textures.get(3), w, h, GL_DEPTH_COMPONENT, GL_DEPTH_COMPONENT);
 		
 		glBindFramebuffer(GL_FRAMEBUFFER, this.fbo);
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, this.gBuffer, 0);
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, this.nBuffer, 0);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, this.sBuffer, 0);
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT,  GL_TEXTURE_2D, this.dBuffer, 0);
-		glDrawBuffers(Buffers.fromArray(GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1));
+		glDrawBuffers(Buffers.fromArray(GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2));
 		
 		int status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -101,6 +104,11 @@ public class DeferredFBO {
 	public void bindDepth(int unit) {
 		glActiveTexture(GL_TEXTURE0 + unit);
 		glBindTexture(GL_TEXTURE_2D, this.dBuffer);
+	}
+	
+	public void bindSpecular(int unit) {
+		glActiveTexture(GL_TEXTURE0 + unit);
+		glBindTexture(GL_TEXTURE_2D, this.sBuffer);
 	}
 
 }

@@ -70,6 +70,7 @@ public class AccumPass {
 		if(lights.length > 0) {
 			fbo.bindNormals(0);
 			fbo.bindDepth(1);
+			fbo.bindSpecular(2);
 			Matrix4f invProjMat = camera.getProjectionMatrix().invert(tempProjMat);
 			Matrix4f invViewMat = camera.getViewMatrix().invert(tempViewMat);
 			
@@ -93,6 +94,7 @@ public class AccumPass {
 				shader.bind();
 				shader.uniform("normals").set(0);
 				shader.uniform("depth").set(1);
+				shader.uniform("specular").set(2);
 				shader.uniform("cameraPos").set(camera.getPosition());
 				shader.uniform("invProjMat").set(invProjMat);
 				shader.uniform("invViewMat").set(invViewMat);
