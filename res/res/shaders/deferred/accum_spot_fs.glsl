@@ -53,14 +53,14 @@ void main() {
 	
 	for(int i = 0; i < lightCount; i++) {
 		Light lightSource = lightSources[i];
-		vec3 light  = lightSource.position - pos;
-		float dist  = length(light);
+		vec3 light = lightSource.position - pos;
+		float dist = length(light);
 		if(dist > lightSource.range) {
 			continue;
 		}
 		light *= 1. / dist;
 		
-		float theta = dot(light, -lightSource.direction);
+		float theta = dot(light, lightSource.direction);
 		if(theta < lightSource.cosSpotAngle) {
 			continue;
 		}

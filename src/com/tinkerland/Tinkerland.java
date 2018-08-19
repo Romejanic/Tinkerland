@@ -36,7 +36,7 @@ public class Tinkerland {
 		Light spot = this.scene.addLight(LightType.SPOT);
 		spot.position.set(-3f, 3f, -3f);
 		spot.rotation.set(-45f, 30f, 0f);
-		for(int i = 0; i < 10; i++) {
+		for(int i = 0; i < 20; i++) {
 			this.scene.addLight(DeferredTest.createRandomPointLight());
 		}
 		
@@ -45,6 +45,7 @@ public class Tinkerland {
 
 	private void update() {
 		this.scene.getObjectByName("tri").rotation.y += Input.getDelta() * 45f;
+		
 		
 		this.camera.update(Window.getWidth(), Window.getHeight());
 		this.renderer.render(this.camera, this.scene, Window.getWidth(), Window.getHeight());

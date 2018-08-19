@@ -111,8 +111,8 @@ public class AccumPass {
 						shader.uniform("lightSources[" + i + "].position").set(light.position);
 						break;
 					case SPOT:
-						lightDir = Mathf.rotationToVector(light.rotation, Temp.VEC3).negate();
-						shader.uniform("lightSources[" + i + "].direction").set(Mathf.rotationToVector(light.rotation, Temp.VEC3).negate());
+						lightDir = Mathf.rotationToVector(light.rotation, Temp.VEC3);
+						shader.uniform("lightSources[" + i + "].direction").set(lightDir);
 						shader.uniform("lightSources[" + i + "].range").set(light.range);
 						shader.uniform("lightSources[" + i + "].position").set(light.position);
 						shader.uniform("lightSources[" + i + "].cosSpotAngle").set(Mathf.cos(Mathf.rad(light.spotAngle)));
