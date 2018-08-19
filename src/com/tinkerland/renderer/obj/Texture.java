@@ -18,12 +18,18 @@ public class Texture {
 
 	private static final HashMap<String, Texture> textures = new HashMap<String, Texture>();
 
+	private final String name;
 	private int target;
 	private int texture;
 	
-	private Texture(int target, int texture) {
+	private Texture(String name, int target, int texture) {
+		this.name    = name;
 		this.target  = target;
 		this.texture = texture;
+	}
+	
+	public String getName() {
+		return this.name;
 	}
 	
 	public void bind() {
@@ -38,7 +44,7 @@ public class Texture {
 		if(textures.containsKey(name)) {
 			return textures.get(name);
 		}
-		Texture t = new Texture(GL_TEXTURE_2D, glGenTextures());
+		Texture t = new Texture(name, GL_TEXTURE_2D, glGenTextures());
 		try {
 			PNGDecoder png = new PNGDecoder(Resources.getResource("textures/" + name + ".png"));
 			ByteBuffer buf = BufferUtils.createByteBuffer(png.getWidth() * png.getHeight() * 4);

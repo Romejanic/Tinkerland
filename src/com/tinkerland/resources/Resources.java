@@ -22,14 +22,7 @@ public class Resources {
 	}
 	
 	public static String readFull(String resource) throws Exception {
-		InputStream    stream = getResource(resource);
-		BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
-		StringBuilder  out    = new StringBuilder();
-		for(String ln = reader.readLine(); ln != null; ln = reader.readLine()) {
-			out.append(ln).append("\n");
-		}
-		reader.close();
-		return out.toString().trim();
+		return readFull(getResource(resource));
 	}
 	
 	public static ArrayList<String> readLines(String resource) throws Exception {
@@ -41,6 +34,16 @@ public class Resources {
 		}
 		reader.close();
 		return out;
+	}
+	
+	public static String readFull(InputStream stream) throws Exception {
+		BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
+		StringBuilder  out    = new StringBuilder();
+		for(String ln = reader.readLine(); ln != null; ln = reader.readLine()) {
+			out.append(ln).append("\n");
+		}
+		reader.close();
+		return out.toString().trim();
 	}
 	
 }

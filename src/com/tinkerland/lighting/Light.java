@@ -6,7 +6,7 @@ import com.google.gson.JsonObject;
 import com.tinkerland.scene.JsonHelper;
 import com.tinkerland.utils.Color;
 
-public class Light {
+public final class Light {
 
 	public final Vector3f position = new Vector3f();
 	public final Vector3f rotation = new Vector3f();
@@ -49,11 +49,26 @@ public class Light {
 				object.addProperty("spotSoftness", this.spotSoftness);
 			}
 		}
-		serializeProperties(object);
 	}
 	
-	protected void serializeProperties(JsonObject object) {}
-	protected void deserializeProperties(JsonObject object) {}
+	public static Light deserializeLight(JsonObject object) {
+		if(!object.has("type")) {
+			throw new IllegalArgumentException("Given JsonObject is not a light!");
+		}
+		Light light = new Light(LightType.valueOf(object.get("type").getAsString()));
+		light.position.set(JsonHelper.deserializeVector3(object.getAsJsonArray("position")));
+		light.rotation.set(JsonHelper.deserializeVector3(object.getAsJsonArray("rotation")));
+		light.color = JsonHelper.deserializeColor(object.getAsJsonArray("color"));
+		light.intensity = object.get("intensity").getAsFloat();
+		if(light.type == LightType.OMNI || light.type == LightType.SPOT) {
+			light.range = object.get("range").getAsFloat();
+			if(light.type == LightType.SPOT) {
+				light.spotAngle = object.get("spotAngle").getAsFloat();
+				light.spotSoftness = object.get("spotSoftness").getAsFloat();
+			}
+		}
+		return light;
+	}
 	
 	public enum LightType {
 		
