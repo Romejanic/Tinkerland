@@ -2,6 +2,8 @@ package com.tinkerland.lighting;
 
 import org.joml.Vector3f;
 
+import com.google.gson.JsonObject;
+import com.tinkerland.scene.JsonHelper;
 import com.tinkerland.utils.Color;
 
 public class Light {
@@ -33,6 +35,25 @@ public class Light {
 		this(type);
 		this.position.set(x, y, z);
 	}
+	
+	public final void serializeLight(JsonObject object) {
+		object.add("position", JsonHelper.serializeVector3(this.position));
+		object.add("rotation", JsonHelper.serializeVector3(this.rotation));
+		object.add("color", JsonHelper.serializeColor(this.color));
+		object.addProperty("type", this.type.name());
+		object.addProperty("intensity", this.intensity);
+		if(this.type == LightType.OMNI || this.type == LightType.SPOT) {
+			object.addProperty("range", this.range);
+			if(this.type == LightType.SPOT) {
+				object.addProperty("spotAngle", this.spotAngle);
+				object.addProperty("spotSoftness", this.spotSoftness);
+			}
+		}
+		serializeProperties(object);
+	}
+	
+	protected void serializeProperties(JsonObject object) {}
+	protected void deserializeProperties(JsonObject object) {}
 	
 	public enum LightType {
 		

@@ -1,5 +1,7 @@
 package com.tinkerland;
 
+import java.io.File;
+
 import com.tinkerland.camera.Camera;
 import com.tinkerland.camera.FreeCamera;
 import com.tinkerland.input.Input;
@@ -12,6 +14,7 @@ import com.tinkerland.renderer.test.FloorMesh;
 import com.tinkerland.renderer.test.MeshTest;
 import com.tinkerland.renderer.test.RendererTest;
 import com.tinkerland.scene.Scene;
+import com.tinkerland.scene.SceneSave;
 
 public class Tinkerland {
 
@@ -53,6 +56,9 @@ public class Tinkerland {
 	}
 
 	private void destroy() {
+		if(this.scene != null) {
+			SceneSave.saveScene(this.scene, new File("scenes/scene.tkl"));
+		}
 		this.renderer.destroy();
 		Window.destroy();
 	}

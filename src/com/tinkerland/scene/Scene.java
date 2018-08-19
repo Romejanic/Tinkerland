@@ -11,6 +11,7 @@ public class Scene {
 	private final ArrayList<SceneObject> objects = new ArrayList<SceneObject>();
 	private final ArrayList<Light> lights = new ArrayList<Light>();
 	
+	public String sceneName   = "Untitled Scene";
 	public Color ambientColor = new Color(25, 25, 25);
 	
 	public SceneObject addObject(SceneObject object) {
